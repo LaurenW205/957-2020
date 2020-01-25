@@ -10,6 +10,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.first.wpilibj.Joystick;
 
 
@@ -27,12 +30,18 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
   }
 
+  public void disabledInit() {
+    m_drivetrain.setIdleMode(IdleMode.kBrake);
+  }
   @Override
   public void autonomousInit() {
+    m_drivetrain.setIdleMode(IdleMode.kCoast);
+    m_drivetrain.resetEncoders();
   }
 
   @Override
   public void autonomousPeriodic() {
+    m_drivetrain.turnTo(180);
   }
 
   @Override
