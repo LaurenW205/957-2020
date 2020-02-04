@@ -19,11 +19,13 @@ import edu.wpi.first.wpilibj.Joystick;
 public class Robot extends TimedRobot {
 
   Drivetrain m_drivetrain = Drivetrain.getInstance();
+  PowerCell m_pc = PowerCell.getInstance();
 
   Joystick m_joystick = new Joystick(0);
 
   @Override
   public void robotInit() {
+    
   }
 
   @Override
@@ -32,13 +34,21 @@ public class Robot extends TimedRobot {
 
   public void disabledInit() {
     m_drivetrain.setIdleMode(IdleMode.kBrake);
+    m_pc.setIdleMode(IdleMode.kBrake);
   }
   @Override
   public void autonomousInit() {
     m_drivetrain.setIdleMode(IdleMode.kCoast);
     m_drivetrain.resetEncoders();
+    m_pc.setIdleMode(IdleMode.kCoast);
+
   }
 
+  @Override
+  public void teleopInit() {
+    m_pc.setIdleMode(IdleMode.kCoast);
+  }
+  
   @Override
   public void autonomousPeriodic() {
     m_drivetrain.turnTo(180);
