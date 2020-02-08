@@ -14,7 +14,7 @@ import frc.robot.RobotState.State;
 
 public class PowerCell{
 
-    double shooterSpeed = 0;
+    double m_shooterSpeed = 0;
 
     DoubleSolenoid m_arm = new DoubleSolenoid(0, 1);
     DoubleSolenoid m_arm2 = new DoubleSolenoid(2, 3);
@@ -35,6 +35,7 @@ public class PowerCell{
 
     int m_ballCount = 0;
     double m_setPoint = 1;
+    double m_timer = 0;
 
     double kP = 0.00008;
     double kI = 5e-6;
@@ -104,14 +105,33 @@ public class PowerCell{
             
             case EJECT:
 
-               
+                if(m_shooterSensor.get() == false){
+                    m_shooterSpeed = 1;
+                
 
+                }
+    
                 break;
             
             case SHOOT:
-
                 
+                m_timer = m_timer + 0.02; 
 
+                m_setPoint = 221.925652648;
+
+                if(m_shooterSensor.get() == false){
+                    m_timer = 0;
+                }
+                
+                if(m_timer > 1){
+                    reset();
+                    m_state.setState(State.WAITING);
+                }
+                break;
+            
+            case SCORE:
+
+            
                 break;
             
             default:
@@ -140,5 +160,10 @@ public class PowerCell{
       public void reset(){
         m_neoPassEncoder.setPosition(0);
     }
-      
+      public void passthroughReset(){
+        m_state.setState(State.WAITING);
+        reset();
+        m_setPoint = 221.925652648;
+        reset(); 
+        }
 }
