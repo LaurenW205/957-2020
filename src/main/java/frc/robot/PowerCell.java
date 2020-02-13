@@ -28,6 +28,7 @@ public class PowerCell{
     CANPIDController m_pidController = m_neoPassthrough.getPIDController();
 
     DigitalInput m_intakeSensor = new DigitalInput(0);
+    DigitalInput m_intakeSensor2 = new DigitalInput(0);
     DigitalInput m_shooterSensor = new DigitalInput(0);
 
     CANSparkMax m_shooterMaster = new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -80,7 +81,7 @@ public class PowerCell{
         return m_powercell;
     }
 
-    public void run(){
+    public void run(boolean buttonIntake, boolean buttonEject, boolean buttonReverse, boolean buttonShoot, boolean buttonGrab){
 
         boolean armState = false;
 
@@ -88,50 +89,50 @@ public class PowerCell{
         switch(m_state.state()){
             case GRAB_CELL:
 
-                armState = true;
                 m_neoIntake.set(1);
-                if(m_intakeSensor.get() == false){
+                if(m_intakeSensor.get() == false && m_ballCount < 5){
                     m_state.setState(State.WAITING);
                     m_setPoint = m_setPoint + m_index_distance;
+                    m_ballCount = m_ballCount + 1; 
+                    
+                }
+
+                if(m_ballCount == 4 && m_intakeSensor2.get()){
+                    m_setPoint = m_setPoint + 10;
+                    m_ballCount = m_ballCount + 1;
                 }
                 break;
           
             case WAITING:
 
-                armState = false;
                 m_neoIntake.set(0);
+
+                if(m_intakeSensor.get() == false){
+                    m_setPoint = m_setPoint + m_index_distance;
+                }
                 
                 break;
             
             case EJECT:
-
-                if(m_shooterSensor.get() == false){
-                    m_shooterSpeed = 1;
                 
-
-                }
-    
+                m_shooterMaster.set(.5);
+                m_state.setState(State.WAITING);    
+                            
                 break;
             
             case SHOOT:
                 
-                m_timer = m_timer + 0.02; 
+                m_shooterMaster.set(1);
+                m_state.setState(State.SCORE);
 
-                m_setPoint = 221.925652648;
-
-                if(m_shooterSensor.get() == false){
-                    m_timer = 0;
-                }
-                
-                if(m_timer > 1){
-                    reset();
-                    m_state.setState(State.WAITING);
-                }
                 break;
             
             case SCORE:
 
-            
+                m_setPoint = m_setPoint + 184.938043873;
+                m_ballCount = 0;
+                m_state.setState(State.WAITING);
+
                 break;
             
             default:
@@ -151,11 +152,33 @@ public class PowerCell{
     
         }
 
+        if(buttonIntake == true && armState == true){
+            armState = false;
+        }
+
+        if(buttonIntake == true && armState == false){
+            armState = true;
+        }
+
+        if(buttonEject == true){
+            m_state.setState(State.EJECT);
+        }
+
+        if(buttonReverse == true){
+            m_setPoint = m_setPoint - m_index_distance;
+        }
+
+        if(buttonShoot == true){
+            m_state.setState(State.SHOOT);
+        }
+
+        if(buttonGrab = true){
+            m_state.setState(State.GRAB_CELL);
+        }
+
         m_pidController.setReference(m_setPoint, ControlType.kSmartMotion);
         
     }
-       
-            
 
       public void reset(){
         m_neoPassEncoder.setPosition(0);
