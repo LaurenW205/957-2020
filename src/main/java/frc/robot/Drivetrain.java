@@ -17,13 +17,13 @@ public class Drivetrain{
     MiniPID m_auxLoop = new MiniPID(0.015, 0, 0.06);
     AHRS m_navx = new AHRS(Port.kMXP);
 
-    CANSparkMax m_rightNeoMaster = new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless);
-    CANSparkMax m_rightNeoSlave = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax m_rightNeoMaster = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax m_rightNeoSlave = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
     CANEncoder m_rightEncoder = m_rightNeoMaster.getEncoder();
     CANPIDController m_rightController = m_rightNeoMaster.getPIDController();
     
-    CANSparkMax m_leftNeoMaster = new CANSparkMax(1, CANSparkMaxLowLevel.MotorType.kBrushless);
-    CANSparkMax m_leftNeoSlave = new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax m_leftNeoMaster = new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax m_leftNeoSlave = new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless);
     CANEncoder m_leftEncoder = m_leftNeoMaster.getEncoder();
     CANPIDController m_leftController = m_leftNeoMaster.getPIDController();
 
