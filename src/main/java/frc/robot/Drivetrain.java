@@ -102,8 +102,8 @@ public class Drivetrain{
         outputD = outputD + (outputD - speed) * -ramp;
         outputT = outputT + (outputT - turn) * -ramp;
         
-        m_rightNeoMaster.set(outputD+outputT);
-        m_leftNeoMaster.set(outputD-outputT);
+        m_rightNeoMaster.set(outputD+turn);
+        m_leftNeoMaster.set(outputD-turn);
 
     }
 

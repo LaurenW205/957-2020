@@ -10,6 +10,7 @@ package frc.robot;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.RobotState.State;
@@ -39,6 +40,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    m_state.setState(State.WAITING);
     
   }
     
@@ -53,7 +55,7 @@ public class Robot extends TimedRobot {
   }
 
   public void disabledInit() {
-    m_drivetrain.setIdleMode(IdleMode.kBrake);
+    m_drivetrain.setIdleMode(IdleMode.kCoast);
     m_pc.setIdleMode(IdleMode.kBrake);
   }
   @Override
@@ -76,8 +78,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    m_drivetrain.arcadeDrive(m_joystick.getRawAxis(4), m_joystick.getRawAxis(1));
-    
+    m_drivetrain.arcadeDrive(m_joystick.getRawAxis(1), -m_joystick.getRawAxis(2));
 
     switch(m_switchIntake){
       case 0:
@@ -86,7 +87,7 @@ public class Robot extends TimedRobot {
         }
         break;
       case 1:
-        if(m_joystick.getRawButton(k_switchIntake)){
+        if(!m_joystick.getRawButton(k_switchIntake)){
           m_switchIntake = 2;
           m_pc.setArm(true);
         }
@@ -97,7 +98,7 @@ public class Robot extends TimedRobot {
         }
         break;     
       case 3:
-        if(m_joystick.getRawButton(k_switchIntake)){
+        if(!m_joystick.getRawButton(k_switchIntake)){
           m_switchIntake = 0;
           m_pc.setArm(false);
           m_state.setState(State.WAITING);
@@ -106,8 +107,12 @@ public class Robot extends TimedRobot {
       }
     
     if(m_joystick.getRawButton(k_ifGrab)){
-      m_state.setState(State.GRAB_CELL);
-      m_pc.setArm(true);
+      if(State.WAITING == m_state.state()){
+        m_pc.record();
+        m_state.setState(State.GRAB_CELL);
+        m_pc.setArm(true);
+      }
+      
     }
 
     if(m_joystick.getRawButton(k_ifGrabDisable)){
@@ -117,6 +122,10 @@ public class Robot extends TimedRobot {
 
     if(m_joystick.getRawButton(k_ifEject)){
       m_state.setState(State.EJECT);
+    }
+
+    if(m_joystick.getRawButton(k_ifShoot)){
+      m_state.setState(State.SHOOT);
     }
     
     m_pc.run();
