@@ -92,7 +92,7 @@ public class PowerCell{
 		m_pidControllerShooter1.setFF(kFF);
 		m_pidControllerShooter1.setSmartMotionMaxVelocity(maxVel, 0);
 		m_pidControllerShooter1.setSmartMotionMinOutputVelocity(0, 0);
-		m_pidControllerShooter1.setSmartMotionMaxAccel(maxAcc,0);
+		m_pidControllerShooter1.setSmartMotionMaxAccel(5000,0);
         m_pidControllerShooter1.setOutputRange(-1, 1);	
 
         m_pidControllerShooter2.setP(kP);
@@ -102,9 +102,14 @@ public class PowerCell{
 		m_pidControllerShooter2.setFF(kFF);
 		m_pidControllerShooter2.setSmartMotionMaxVelocity(maxVel, 0);
 		m_pidControllerShooter2.setSmartMotionMinOutputVelocity(0, 0);
-		m_pidControllerShooter2.setSmartMotionMaxAccel(maxAcc,0);
+		m_pidControllerShooter2.setSmartMotionMaxAccel(5000,0);
         m_pidControllerShooter2.setOutputRange(-1, 1);	
         
+        m_shooterMaster.setSmartCurrentLimit(40, 40);
+        m_shooterSlave.setSmartCurrentLimit(40, 40);
+        m_neoIntake.setSmartCurrentLimit(30, 30);
+        m_neoPassthrough.setSmartCurrentLimit(40, 40);
+        m_neoPassthrough2.setSmartCurrentLimit(40, 40);
     } 
      public void setIdleMode(IdleMode mode){
         m_neoPassthrough.setIdleMode(mode);
@@ -140,7 +145,7 @@ public class PowerCell{
                 m_timer = 1000;
             }
 
-            m_neoIntake.set(0.25);
+            m_neoIntake.set(0.50);
             if(m_ballCount == 4 && !m_intakeSensor.get() && m_timer > 499){
                 m_ballCount = m_ballCount + 1;
                 m_state.setState(State.WAITING);
@@ -177,7 +182,7 @@ public class PowerCell{
             
             case EJECT:
                 
-                m_shooterSpeed = 1000;
+                m_shooterSpeed = 500;
                 m_passThroughSpeed = 1;
                 m_timeCount = 1000;
                 m_state.setState(State.SCORE);    
@@ -187,10 +192,10 @@ public class PowerCell{
                 break;
             
             case SHOOT:
-                m_shooterSpeed = 4275;
+                m_shooterSpeed = 4500;
                 m_passThroughSpeed = .4;
                 m_timeCount = 3000;
-                if(m_shooterMasterEncoder.getVelocity() > 4100){
+                if(m_shooterMasterEncoder.getVelocity() > m_shooterSpeed-100 && m_shooterSlave.getEncoder().getVelocity() > m_shooterSpeed-100 ){
                 m_state.setState(State.SCORE);
                 }
 
@@ -245,6 +250,9 @@ public class PowerCell{
         }else{
             m_arm.set(Value.kReverse);
         } 
+
+        SmartDashboard.putNumber("lrpm", m_shooterMasterEncoder.getVelocity());
+        SmartDashboard.putNumber("rrpn", m_shooterSlave.getEncoder().getVelocity());
         
     }
 

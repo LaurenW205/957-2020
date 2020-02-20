@@ -1,19 +1,22 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Solenoid;
 
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ControlType;
 
 public class Climber{
 
+   
     CANSparkMax m_spark = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
-    CANSparkMax m_spark2 = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
+    TalonSRX m_talon = new TalonSRX(13);
     CANEncoder m_encoder = m_spark.getEncoder();
     CANEncoder m_encoder2 = m_spark.getEncoder();
     CANPIDController m_pidController = m_spark.getPIDController();
@@ -45,7 +48,7 @@ public class Climber{
         m_pidController.setOutputRange(-1, 1);	
         
         m_spark.setIdleMode(IdleMode.kBrake);
-		m_spark2.setIdleMode(IdleMode.kBrake);
+		
     }
 
      public static Climber getInstance(){

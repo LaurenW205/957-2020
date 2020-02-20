@@ -5,12 +5,11 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
-
-import edu.wpi.first.wpilibj.I2C.Port;
-
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ControlType;
-import com.revrobotics.CANPIDController.ArbFFUnits;
+
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.I2C.Port;
 
 public class Drivetrain{
 
@@ -96,7 +95,7 @@ public class Drivetrain{
 
     public void arcadeDrive(double speed, double turn){
 
-        turn = deadband(turn);
+        turn = deadband(turn/2);
         speed = deadband(speed);
 
         outputD = outputD + (outputD - speed) * -ramp;
@@ -130,8 +129,16 @@ public class Drivetrain{
         double output = m_auxLoop.getOutput(m_navx.getAngle(), targetAngle);
         m_rightNeoMaster.set(-output);
         m_leftNeoMaster.set(output);
-
     }
 
+    public double target(double targetLocation){
+        
+        double currentLocation = NetworkTableInstance.getDefault().getTable("limelight").getEntry("<variablename").getDouble(0);
+        double output = m_auxLoop.getOutput(currentLocation, targetLocation);
+        m_rightNeoMaster.set(-output);
+        m_leftNeoMaster.set(output);
+        return currentLocation;
+
+    }
 
 }
