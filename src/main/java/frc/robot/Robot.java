@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
   RobotState m_state = RobotState.getInstance();
 
   Joystick m_joystick = new Joystick(0);
+  Joystick m_xbox = new Joystick(1);
 
   int m_switchIntake = 0;
 
@@ -32,11 +33,13 @@ public class Robot extends TimedRobot {
   int k_ifGrab = 4;
   int k_auto = 5;
   int k_ifGrabDisable = 9;
-  int k_reverse = 6;
+  int k_reverseAll = 1;
+  int k_reverseIntake = 2;
   int k_fingerActive = 7;
   int k_fingerSpin = 8;
   int k_drain1 = 11;
-  int k_drain2 = 12;
+
+  int k_vision = 12;
 
   @Override
   public void robotInit() {
@@ -78,8 +81,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    m_drivetrain.arcadeDrive(m_joystick.getRawAxis(1), -m_joystick.getRawAxis(2));
+    if(m_joystick.getRawButton(k_vision)){
+      m_drivetrain.target(0);
 
+    }else{
+      m_drivetrain.arcadeDrive(m_joystick.getRawAxis(1), -m_joystick.getRawAxis(2));
+    }
     switch(m_switchIntake){
       case 0:
         if(m_joystick.getRawButton(k_switchIntake)){
@@ -111,8 +118,27 @@ public class Robot extends TimedRobot {
         m_pc.record();
         m_state.setState(State.GRAB_CELL);
         m_pc.setArm(true);
+    
       }
       
+    }
+
+    if(m_xbox.getRawButton(k_reverseAll)){
+      if(State.GRAB_CELL == m_state.state() || State.WAITING == m_state.state()){
+        m_state.setState(State.REVERSE_ALL);
+      }
+    }else if(m_state.state() == State.REVERSE_ALL){
+      m_state.setState(State.WAITING);
+
+    }
+    if(m_xbox.getRawButton(k_reverseIntake)){
+      if(State.GRAB_CELL == m_state.state() || State.WAITING == m_state.state()){
+        m_state.setState(State.REVERSE_INTAKE);
+      }
+    }else if(m_state.state() == State.REVERSE_INTAKE){
+
+      m_state.setState(State.WAITING);
+
     }
 
     if(m_joystick.getRawButton(k_ifGrabDisable)){

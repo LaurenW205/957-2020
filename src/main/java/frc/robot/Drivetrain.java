@@ -10,6 +10,7 @@ import com.revrobotics.ControlType;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drivetrain{
 
@@ -133,10 +134,11 @@ public class Drivetrain{
 
     public double target(double targetLocation){
         
-        double currentLocation = NetworkTableInstance.getDefault().getTable("limelight").getEntry("<variablename").getDouble(0);
+        double currentLocation = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+        SmartDashboard.putNumber("limelight", currentLocation);
         double output = m_auxLoop.getOutput(currentLocation, targetLocation);
-        m_rightNeoMaster.set(-output);
-        m_leftNeoMaster.set(output);
+        m_rightNeoMaster.set(output);
+        m_leftNeoMaster.set(-output);
         return currentLocation;
 
     }

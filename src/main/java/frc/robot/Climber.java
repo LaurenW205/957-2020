@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Solenoid;
 
 import com.revrobotics.CANSparkMaxLowLevel;
@@ -14,12 +15,14 @@ import com.revrobotics.ControlType;
 
 public class Climber{
 
+    DoubleSolenoid m_drainSnake = new DoubleSolenoid(1, 5, 4);
    
     CANSparkMax m_spark = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
     TalonSRX m_talon = new TalonSRX(13);
     CANEncoder m_encoder = m_spark.getEncoder();
     CANEncoder m_encoder2 = m_spark.getEncoder();
     CANPIDController m_pidController = m_spark.getPIDController();
+     
 
     DigitalInput m_climberSensor = new DigitalInput(0);
     DigitalInput m_climberSensor2 = new DigitalInput(0);
@@ -33,10 +36,21 @@ public class Climber{
     int maxVel = 5700;
     double maxAcc = 3750;
 
+
     private static Climber m_climber = null;
 
     private Climber(){
       
+        m_pidController.setP(kP);
+		m_pidController.setI(kI);
+		m_pidController.setD(kD);
+		m_pidController.setIZone(kIz);
+		m_pidController.setFF(kFF);
+		m_pidController.setSmartMotionMaxVelocity(maxVel, 0);
+		m_pidController.setSmartMotionMinOutputVelocity(0, 0);
+		m_pidController.setSmartMotionMaxAccel(maxAcc,0);
+        m_pidController.setOutputRange(-1, 1);	
+
         m_pidController.setP(kP);
 		m_pidController.setI(kI);
 		m_pidController.setD(kD);

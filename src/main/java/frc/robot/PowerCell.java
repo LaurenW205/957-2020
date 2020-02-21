@@ -74,6 +74,8 @@ public class PowerCell{
 
         m_neoPassthrough2.follow(m_neoPassthrough);
         m_shooterSlave.setInverted(true);
+        m_neoPassthrough.setInverted(true);
+        m_neoPassthrough2.setInverted(true);
 
         m_pidController.setP(kP);
 		m_pidController.setI(kI);
@@ -135,6 +137,7 @@ public class PowerCell{
         switch(m_state.state()){
             case GRAB_CELL:
 
+            m_passState = true;
 
             if(m_armState == false || m_ballCount == 5){
                 m_state.setState(State.WAITING);
@@ -165,6 +168,8 @@ public class PowerCell{
           
             case WAITING:
 
+                m_passState = true;
+
                 m_timer = 0;
                 if(m_armState == true && m_ballCount <= 4){
                     m_neoIntake.set(0.25);
@@ -172,7 +177,7 @@ public class PowerCell{
                     m_neoIntake.set(0);
                 }
 
-                if(m_setPoint+m_neoPassEncoder.getPosition() < 1 && m_armState && m_ballCount != 5){
+                if(m_setPoint-m_neoPassEncoder.getPosition() < 1 && m_armState && m_ballCount != 5){
                     m_state.setState(State.GRAB_CELL);
                 }
 
@@ -232,6 +237,22 @@ public class PowerCell{
                 SmartDashboard.putString("State", "Score");
 
                 break;
+
+            case REVERSE_ALL:
+
+                m_passState = false;
+                m_neoIntake.set(-0.25);
+                m_passThroughSpeed = -0.4;
+                
+                break;
+
+            case REVERSE_INTAKE:
+
+                m_passState = false;
+                m_neoIntake.set(-0.25);
+                m_passThroughSpeed = 0;
+
+                break; 
             
             default:
 
@@ -243,7 +264,7 @@ public class PowerCell{
                 break;
         }
 
-        setMode(m_passState, -m_passThroughSpeed);
+        setMode(m_passState, m_passThroughSpeed);
         
        if(m_armState){
             m_arm.set(Value.kForward);
@@ -282,7 +303,7 @@ public class PowerCell{
 
     public void setMode(boolean m_passState, double speed){
         if(m_passState){
-            m_pidController.setReference(-m_setPoint, ControlType.kSmartMotion);
+            m_pidController.setReference(m_setPoint, ControlType.kSmartMotion);
         }else{
             m_neoPassthrough.set(speed);
         }

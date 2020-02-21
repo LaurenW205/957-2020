@@ -26,7 +26,7 @@ public class RobotState{
 
 
     public enum State{
-        GRAB_CELL, PASSTHROUGH, SHOOT, EJECT, WAITING, SCORE;
+        GRAB_CELL, PASSTHROUGH, SHOOT, EJECT, WAITING, SCORE, REVERSE_ALL, REVERSE_INTAKE;
 
     }
 }
