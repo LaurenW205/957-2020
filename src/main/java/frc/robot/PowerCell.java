@@ -62,6 +62,7 @@ public class PowerCell{
     boolean m_passState = true;
     boolean m_armDeepStorage = false;
 
+    /**PowerCell contructor */
     private PowerCell(){
         reset();
         m_neoIntake.restoreFactoryDefaults();
@@ -113,7 +114,7 @@ public class PowerCell{
         m_neoPassthrough.setSmartCurrentLimit(40, 40);
         m_neoPassthrough2.setSmartCurrentLimit(40, 40);
     } 
-     public void setIdleMode(IdleMode mode){
+    public void setIdleMode(IdleMode mode){
         m_neoPassthrough.setIdleMode(mode);
         m_neoPassthrough2.setIdleMode(mode);
         
@@ -135,6 +136,7 @@ public class PowerCell{
         SmartDashboard.putNumber("Speed", m_shooterMasterEncoder.getVelocity());
 
         switch(m_state.state()){
+        /**Intake powercell */ 
             case GRAB_CELL:
 
             m_passState = true;
@@ -165,7 +167,7 @@ public class PowerCell{
             SmartDashboard.putString("State", "Grab Cell");
 
             break;
-          
+        
             case WAITING:
 
                 m_passState = true;
@@ -184,7 +186,8 @@ public class PowerCell{
                 SmartDashboard.putString("State", "Waiting");
 
                 break;
-            
+       
+         /**Dumping for low goal */
             case EJECT:
                 
                 m_shooterSpeed = 500;
@@ -196,6 +199,7 @@ public class PowerCell{
                             
                 break;
             
+        /**Shooting for high goal*/ 
             case SHOOT:
                 m_shooterSpeed = 4500;
                 m_passThroughSpeed = .4;
@@ -209,7 +213,7 @@ public class PowerCell{
                 SmartDashboard.putString("State", "Shoot");
 
                 break;
-            
+               
             case SCORE:
                 m_timer = m_timer + 20;
 
@@ -238,6 +242,7 @@ public class PowerCell{
 
                 break;
 
+        /**Reverses intake and passthrough */
             case REVERSE_ALL:
 
                 m_passState = false;
@@ -246,6 +251,7 @@ public class PowerCell{
                 
                 break;
 
+        /**Reverses only intake */
             case REVERSE_INTAKE:
 
                 m_passState = false;
