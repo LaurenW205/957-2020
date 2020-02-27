@@ -2,8 +2,6 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.RemoteLimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
@@ -11,8 +9,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Climber{
 
@@ -60,10 +58,10 @@ public class Climber{
         m_talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 50);
         m_talon.setSelectedSensorPosition(0, 0, 50);
 
-        m_talon.configReverseLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, LimitSwitchNormal.NormallyOpen, 14, 0);
-        m_talon.configForwardLimitSwitchSource(RemoteLimitSwitchSource.RemoteTalonSRX, LimitSwitchNormal.NormallyOpen, 14, 0);
         
         m_spark.setIdleMode(IdleMode.kBrake);
+
+        
 		
     }
 
@@ -101,7 +99,25 @@ public class Climber{
 
         joystick = deadband(joystick);
         m_setPoint = m_setPoint + Math.round(joystick*6);
+
+        if(m_setPoint > LiftLevels.MAX.encoderPosition()){
+            m_setPoint = LiftLevels.MAX.encoderPosition();
+        }
+        if(m_setPoint < LiftLevels.LOW.encoderPosition()){
+            m_setPoint = LiftLevels.LOW.encoderPosition();
+        }
+
         m_talon.set(ControlMode.MotionMagic, m_setPoint);
+    }
+
+    public void up(){
+       
+        m_drainSnake.set(Value.kForward);
+    }
+
+    public void down(){
+
+        m_drainSnake.set(Value.kReverse);
     }
 
     public void run(boolean isOn){
