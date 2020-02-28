@@ -44,8 +44,8 @@ public class Drivetrain{
         m_rightNeoMaster.setInverted(true);
         m_rightNeoSlave.setInverted(true);
 
-        m_rightNeoSlave.follow(m_rightNeoMaster);
-        m_leftNeoSlave.follow(m_leftNeoMaster);
+        //m_rightNeoSlave.follow(m_rightNeoMaster);
+        //m_leftNeoSlave.follow(m_leftNeoMaster);
             
         m_rightNeoMaster.setSmartCurrentLimit(k_stallCurrentLimit, k_freeCurrentLimit);
         m_rightNeoSlave.setSmartCurrentLimit(k_stallCurrentLimit, k_freeCurrentLimit);
@@ -77,10 +77,10 @@ public class Drivetrain{
     }
 
     public void setIdleMode(IdleMode mode){
-        m_rightNeoMaster.setIdleMode(mode);
-        m_rightNeoSlave.setIdleMode(mode);
-        m_leftNeoMaster.setIdleMode(mode);
-        m_leftNeoSlave.setIdleMode(mode);
+        m_rightNeoMaster.setIdleMode(IdleMode.kCoast);
+        m_rightNeoSlave.setIdleMode(IdleMode.kCoast);
+        m_leftNeoMaster.setIdleMode(IdleMode.kCoast);
+        m_leftNeoSlave.setIdleMode(IdleMode.kCoast);
     }
 
     public static Drivetrain getInstance(){

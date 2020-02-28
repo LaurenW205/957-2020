@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Climber{
 
-    DoubleSolenoid m_drainSnake = new DoubleSolenoid(1, 5, 4);
+    DoubleSolenoid m_drainSnake = new DoubleSolenoid(1, 3, 2);
    
     CANSparkMax m_spark = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
     TalonSRX m_talon = new TalonSRX(13);
@@ -58,6 +58,8 @@ public class Climber{
         m_talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 50);
         m_talon.setSelectedSensorPosition(0, 0, 50);
 
+        down();
+
         
         m_spark.setIdleMode(IdleMode.kBrake);
 
@@ -91,7 +93,7 @@ public class Climber{
     public void setLevel(LiftLevels level) {	
 
 		m_setPoint = level.encoderPosition();
-		m_talon.set(ControlMode.MotionMagic, m_setPoint);
+	//	m_talon.set(ControlMode.MotionMagic, m_setPoint);
     }
     
     /**Function used to control the climber with a joystick*/
@@ -107,7 +109,7 @@ public class Climber{
             m_setPoint = LiftLevels.LOW.encoderPosition();
         }
 
-        m_talon.set(ControlMode.MotionMagic, m_setPoint);
+    //    m_talon.set(ControlMode.MotionMagic, m_setPoint);
     }
 
     public void up(){

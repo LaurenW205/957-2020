@@ -32,7 +32,7 @@ public class Finger {
     CANEncoder m_fingerEncoder = m_fingerMotor.getEncoder();
     CANPIDController m_fingerController = m_fingerMotor.getPIDController();
     Spark m_lightRing = new Spark(0);
-    DoubleSolenoid m_cylinder = new DoubleSolenoid(1, 3, 2);
+    DoubleSolenoid m_cylinder = new DoubleSolenoid(1, 4, 5);
 
     int m_ballCount = 0;
     double m_setPoint = 1;
@@ -87,6 +87,7 @@ public class Finger {
         m_timer = (m_timer + 20);
 
         m_cylinder.set(Value.kReverse);
+        m_lightRing.set(.20);
         
     }
 
@@ -124,6 +125,8 @@ public class Finger {
         } else {
             colorString = "Unknown";
         }
+
+        SmartDashboard.putString("Color", colorString);
         
         String targetColor = "";
 
