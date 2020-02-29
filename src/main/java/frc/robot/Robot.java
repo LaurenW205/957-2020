@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import frc.robot.Climber.LiftLevels;
 import frc.robot.RobotState.State;
 
 
@@ -40,6 +41,7 @@ public class Robot extends TimedRobot {
   int k_fingerSpin = 6;
   int k_fingerPosition = 4;
   int k_drain = 2;
+  int k_max = 3;
   
 
   int k_vision = 12;
@@ -159,6 +161,10 @@ public class Robot extends TimedRobot {
       }
     }else if(m_state.state() == State.COLOR_SELECT){
       m_state.setState(State.WAITING);
+    }
+
+    if(m_xbox.getRawButton(k_max)){
+      m_climber.setLevel(LiftLevels.MAX);
     }
 
     switch(m_switchFinger){

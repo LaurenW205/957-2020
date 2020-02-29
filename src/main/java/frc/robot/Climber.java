@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Climber{
 
-    DoubleSolenoid m_drainSnake = new DoubleSolenoid(1, 5, 4);
+    DoubleSolenoid m_drainSnake = new DoubleSolenoid(1, 3, 2);
    
     CANSparkMax m_spark = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
     TalonSRX m_talon = new TalonSRX(13);
@@ -49,25 +49,31 @@ public class Climber{
 		m_pidController.setSmartMotionMaxAccel(maxAcc,0);
         m_pidController.setOutputRange(-1, 1);	
 
-        m_talon.config_kF(0, 0, 50);
-		m_talon.config_kP(0, 0, 50);
-		m_talon.config_kI(0, 0, 50);
+        m_talon.config_kF(0, 0.0334, 50);
+		m_talon.config_kP(0, 0.8, 50);
+		m_talon.config_kI(0, 0.004, 50);
         m_talon.config_kD(0, 0, 50);
-        m_talon.configMotionCruiseVelocity(475, 50);
-        m_talon.configMotionAcceleration(475, 50);
+        m_talon.configMotionCruiseVelocity(6000, 50);
+        m_talon.configMotionAcceleration(6000, 50);
         m_talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 50);
         m_talon.setSelectedSensorPosition(0, 0, 50);
+        m_talon.config_IntegralZone(0, 75, 50);
 
         
         m_spark.setIdleMode(IdleMode.kBrake);
 
+        down();
+
+        m_talon.configContinuousCurrentLimit(40);
+        m_talon.configPeakCurrentLimit(40);
+        m_talon.enableCurrentLimit(true);
         
 		
     }
 
     /**Enum storing m_climber positional information */
     public enum LiftLevels{
-        LOW(5), MID(6193), MAX(12142);
+        LOW(5), MID(6193), MAX(6000);
     
         private int encoderPosition;
         public int encoderPosition() {
@@ -91,14 +97,14 @@ public class Climber{
     public void setLevel(LiftLevels level) {	
 
 		m_setPoint = level.encoderPosition();
-		m_talon.set(ControlMode.MotionMagic, m_setPoint);
+		m_talon.set(ControlMode.MotionMagic, -m_setPoint);
     }
     
     /**Function used to control the climber with a joystick*/
     public void operateAnalog(double joystick){
 
         joystick = deadband(joystick);
-        m_setPoint = m_setPoint + Math.round(joystick*6);
+        m_setPoint = m_setPoint + Math.round(joystick*100);
 
         if(m_setPoint > LiftLevels.MAX.encoderPosition()){
             m_setPoint = LiftLevels.MAX.encoderPosition();
@@ -107,7 +113,7 @@ public class Climber{
             m_setPoint = LiftLevels.LOW.encoderPosition();
         }
 
-        m_talon.set(ControlMode.MotionMagic, m_setPoint);
+        m_talon.set(ControlMode.MotionMagic, -m_setPoint);
     }
 
     public void up(){
