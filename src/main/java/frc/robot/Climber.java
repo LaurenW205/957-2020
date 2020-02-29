@@ -59,6 +59,8 @@ public class Climber{
         m_talon.setSelectedSensorPosition(0, 0, 50);
         m_talon.config_IntegralZone(0, 75, 50);
 
+        down();
+
         
         m_spark.setIdleMode(IdleMode.kBrake);
 
@@ -97,7 +99,11 @@ public class Climber{
     public void setLevel(LiftLevels level) {	
 
 		m_setPoint = level.encoderPosition();
+<<<<<<< HEAD
 		m_talon.set(ControlMode.MotionMagic, -m_setPoint);
+=======
+	//	m_talon.set(ControlMode.MotionMagic, m_setPoint);
+>>>>>>> 220ad5de9f14f4f7905470b9de799dcf78a55575
     }
     
     /**Function used to control the climber with a joystick*/
@@ -113,7 +119,11 @@ public class Climber{
             m_setPoint = LiftLevels.LOW.encoderPosition();
         }
 
+<<<<<<< HEAD
         m_talon.set(ControlMode.MotionMagic, -m_setPoint);
+=======
+    //    m_talon.set(ControlMode.MotionMagic, m_setPoint);
+>>>>>>> 220ad5de9f14f4f7905470b9de799dcf78a55575
     }
 
     public void up(){

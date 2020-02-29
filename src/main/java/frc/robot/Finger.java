@@ -87,6 +87,7 @@ public class Finger {
         m_timer = (m_timer + 20);
 
         m_cylinder.set(Value.kReverse);
+        m_lightRing.set(.20);
         
     }
 
@@ -124,6 +125,8 @@ public class Finger {
         } else {
             colorString = "Unknown";
         }
+
+        SmartDashboard.putString("Color", colorString);
         
         String targetColor = "";
 

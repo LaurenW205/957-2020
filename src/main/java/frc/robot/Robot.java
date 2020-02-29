@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.Climber.LiftLevels;
 import frc.robot.RobotState.State;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class Robot extends TimedRobot {
@@ -77,6 +78,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     m_pc.setIdleMode(IdleMode.kCoast);
+    m_drivetrain.setIdleMode(IdleMode.kCoast);
+
   }
   
   @Override
@@ -86,6 +89,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+
     if(m_joystick.getRawButton(k_vision)){
       m_drivetrain.target(0);
 
@@ -218,7 +222,8 @@ public class Robot extends TimedRobot {
         }
         break;
     }
-    m_pc.run();
+  //  m_pc.run();
+  //  m_finger.run();
   }
 
   @Override
