@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ControlType;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -32,6 +33,7 @@ public class PowerCell{
     DigitalInput m_intakeSensor = new DigitalInput(1);
     DigitalInput m_shooterSensor = new DigitalInput(0);
 
+    // CAN 9 = Right, CAN 10 = Left
     CANSparkMax m_shooterMaster = new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless);
     CANSparkMax m_shooterSlave = new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless);
     CANEncoder m_shooterMasterEncoder = m_shooterMaster.getEncoder();
@@ -52,7 +54,7 @@ public class PowerCell{
     double kFF = 0.0002;
     int maxRPM = 5700;
     int maxVel = 5700;
-	double maxAcc = 3750;
+	double maxAcc = 5700;
 
     private static PowerCell m_powercell = null;
 
@@ -61,6 +63,10 @@ public class PowerCell{
     boolean m_armState = false;
     boolean m_passState = true;
     boolean m_armDeepStorage = false;
+
+    double k_a = 532;
+    double k_b = -1084;
+    double k_c = 4944;
 
     /**PowerCell contructor */
     private PowerCell(){
@@ -78,9 +84,9 @@ public class PowerCell{
         m_neoPassthrough.setInverted(true);
         m_neoPassthrough2.setInverted(true);
 
-        m_pidController.setP(kP);
+        m_pidController.setP(0.0001);
 		m_pidController.setI(kI);
-		m_pidController.setD(kD);
+		m_pidController.setD(0.00001);
 		m_pidController.setIZone(kIz);
 		m_pidController.setFF(kFF);
 		m_pidController.setSmartMotionMaxVelocity(maxVel, 0);
@@ -126,6 +132,10 @@ public class PowerCell{
         return m_powercell;
     }
 
+    public double ta(){
+        return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
+    }
+
     public void run(){
 
         SmartDashboard.putBoolean("Start of Pass, Sensor 1", m_intakeSensor.get());
@@ -138,6 +148,9 @@ public class PowerCell{
         switch(m_state.state()){
         /**Intake powercell */ 
             case GRAB_CELL:
+
+            //m_pidControllerShooter1.setReference(2500, ControlType.kSmartVelocity);
+            //m_pidControllerShooter2.setReference(2500, ControlType.kSmartVelocity);
 
             m_passState = true;
 
@@ -159,8 +172,13 @@ public class PowerCell{
             else if(m_intakeSensor.get() == false && m_ballCount < 5 && m_timer > 499){
                 m_state.setState(State.WAITING);
                 m_neoIntake.set(0);
+                if(m_ballCount == 3){
+                    m_setPoint = m_setPoint + m_index_distance*0.75;
+                }else{
                 m_setPoint = m_setPoint + m_index_distance;
+                }
                 m_ballCount = m_ballCount + 1; 
+                
                 
             }
 
@@ -170,17 +188,21 @@ public class PowerCell{
         
             case WAITING:
 
+            //m_pidControllerShooter1.setReference(2500, ControlType.kSmartVelocity);
+            //m_pidControllerShooter2.setReference(2500, ControlType.kSmartVelocity);
+
                 m_passState = true;
 
                 m_timer = 0;
                 if(m_armState == true && m_ballCount <= 4){
-                    m_neoIntake.set(0.25);
+                    m_neoIntake.set(0.5);
                 }else{
                     m_neoIntake.set(0);
                 }
 
                 if(m_setPoint-m_neoPassEncoder.getPosition() < 1 && m_armState && m_ballCount != 5){
                     m_state.setState(State.GRAB_CELL);
+                    m_armDeepStorage = m_armState;
                 }
 
                 SmartDashboard.putString("State", "Waiting");
@@ -189,7 +211,7 @@ public class PowerCell{
        
          /**Dumping for low goal */
             case EJECT:
-                
+             
                 m_shooterSpeed = 500;
                 m_passThroughSpeed = 1;
                 m_timeCount = 1000;
@@ -201,10 +223,13 @@ public class PowerCell{
             
         /**Shooting for high goal*/ 
             case SHOOT:
+
                 m_shooterSpeed = 4500;
-                m_passThroughSpeed = .4;
-                m_timeCount = 3000;
-                if(m_shooterMasterEncoder.getVelocity() > m_shooterSpeed-100 && m_shooterSlave.getEncoder().getVelocity() > m_shooterSpeed-100 ){
+                //k_a*ta()*ta()+k_b*ta()+k_c
+                //System.out.println(m_shooterSpeed);
+                m_passThroughSpeed = .3;
+                m_timeCount = 3500;
+                if(m_shooterMasterEncoder.getVelocity() > m_shooterSpeed-50){
                 m_state.setState(State.SCORE);
                 }
 
@@ -215,6 +240,7 @@ public class PowerCell{
                 break;
                
             case SCORE:
+
                 m_timer = m_timer + 20;
 
                 m_pidControllerShooter1.setReference(m_shooterSpeed, ControlType.kSmartVelocity);
@@ -230,8 +256,8 @@ public class PowerCell{
                 if(m_timer > m_timeCount){
                     m_passState = true;
                     reset();
-                    m_pidControllerShooter1.setReference(0, ControlType.kSmartVelocity);
-                    m_pidControllerShooter2.setReference(0, ControlType.kSmartVelocity);
+                    m_pidControllerShooter1.setReference(2500, ControlType.kSmartVelocity);
+                    m_pidControllerShooter2.setReference(2500, ControlType.kSmartVelocity);
                     m_timer = 0;
                     m_ballCount = 0;
                     m_state.setState(State.WAITING);
@@ -247,7 +273,7 @@ public class PowerCell{
 
                 m_passState = false;
                 m_neoIntake.set(-0.25);
-                m_passThroughSpeed = -0.4;
+                m_passThroughSpeed = -0.3;
                 
                 break;
 

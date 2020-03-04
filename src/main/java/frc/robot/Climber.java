@@ -16,7 +16,7 @@ public class Climber{
 
     DoubleSolenoid m_drainSnake = new DoubleSolenoid(1, 3, 2);
    
-    CANSparkMax m_spark = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax m_spark = new CANSparkMax(12, CANSparkMaxLowLevel.MotorType.kBrushless);
     TalonSRX m_talon = new TalonSRX(13);
     CANEncoder m_encoder = m_spark.getEncoder();
     CANEncoder m_encoder2 = m_spark.getEncoder();
@@ -38,6 +38,8 @@ public class Climber{
 
     /**Climber constuctor */
     private Climber(){
+
+        m_spark.restoreFactoryDefaults();
       
         m_pidController.setP(kP);
 		m_pidController.setI(kI);
@@ -62,12 +64,12 @@ public class Climber{
         down();
 
         
-        m_spark.setIdleMode(IdleMode.kBrake);
+        m_spark.setIdleMode(IdleMode.kCoast);
 
         down();
 
-        m_talon.configContinuousCurrentLimit(40);
-        m_talon.configPeakCurrentLimit(40);
+        m_talon.configContinuousCurrentLimit(30);
+        m_talon.configPeakCurrentLimit(30);
         m_talon.enableCurrentLimit(true);
         
 		
@@ -75,7 +77,7 @@ public class Climber{
 
     /**Enum storing m_climber positional information */
     public enum LiftLevels{
-        LOW(5), MID(6193), MAX(6000);
+        LOW(5), MID(6193), MAX(12000);
     
         private int encoderPosition;
         public int encoderPosition() {
@@ -99,11 +101,9 @@ public class Climber{
     public void setLevel(LiftLevels level) {	
 
 		m_setPoint = level.encoderPosition();
-<<<<<<< HEAD
 		m_talon.set(ControlMode.MotionMagic, -m_setPoint);
-=======
+
 	//	m_talon.set(ControlMode.MotionMagic, m_setPoint);
->>>>>>> 220ad5de9f14f4f7905470b9de799dcf78a55575
     }
     
     /**Function used to control the climber with a joystick*/
@@ -119,11 +119,8 @@ public class Climber{
             m_setPoint = LiftLevels.LOW.encoderPosition();
         }
 
-<<<<<<< HEAD
         m_talon.set(ControlMode.MotionMagic, -m_setPoint);
-=======
-    //    m_talon.set(ControlMode.MotionMagic, m_setPoint);
->>>>>>> 220ad5de9f14f4f7905470b9de799dcf78a55575
+
     }
 
     public void up(){

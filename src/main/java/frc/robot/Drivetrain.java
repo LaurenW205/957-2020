@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drivetrain{
 
-    MiniPID m_auxLoop = new MiniPID(0.015, 0, 0.06);
+    MiniPID m_auxLoop = new MiniPID(0.03, 0, 0.15);
+    //MiniPID m_driveLoop = new MiniPID(0.1, 0.001, 1.2);
+    MiniPID m_driveLoop = new MiniPID(0.015, 0.0001, 0.02);
     AHRS m_navx = new AHRS(Port.kMXP);
 
     CANSparkMax m_rightNeoMaster = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -34,7 +36,10 @@ public class Drivetrain{
 
     public Drivetrain(){
 
+        m_navx.reset();
         m_auxLoop.setOutputLimits(-0.2, 0.2);
+        
+      
 
         m_rightNeoMaster.restoreFactoryDefaults();
         m_leftNeoMaster.restoreFactoryDefaults();
@@ -44,8 +49,8 @@ public class Drivetrain{
         m_rightNeoMaster.setInverted(true);
         m_rightNeoSlave.setInverted(true);
 
-        //m_rightNeoSlave.follow(m_rightNeoMaster);
-        //m_leftNeoSlave.follow(m_leftNeoMaster);
+        m_rightNeoSlave.follow(m_rightNeoMaster);
+        m_leftNeoSlave.follow(m_leftNeoMaster);
             
         m_rightNeoMaster.setSmartCurrentLimit(k_stallCurrentLimit, k_freeCurrentLimit);
         m_rightNeoSlave.setSmartCurrentLimit(k_stallCurrentLimit, k_freeCurrentLimit);
@@ -77,10 +82,10 @@ public class Drivetrain{
     }
 
     public void setIdleMode(IdleMode mode){
-        m_rightNeoMaster.setIdleMode(IdleMode.kCoast);
-        m_rightNeoSlave.setIdleMode(IdleMode.kCoast);
-        m_leftNeoMaster.setIdleMode(IdleMode.kCoast);
-        m_leftNeoSlave.setIdleMode(IdleMode.kCoast);
+        m_rightNeoMaster.setIdleMode(mode);
+        m_rightNeoSlave.setIdleMode(mode);
+        m_leftNeoMaster.setIdleMode(mode);
+        m_leftNeoSlave.setIdleMode(mode);
     }
 
     public static Drivetrain getInstance(){
@@ -120,10 +125,34 @@ public class Drivetrain{
         return 0;
     }
 
-    public void driveStraight(double inches){
-        double setpoint = inches*0.475;
-        m_rightController.setReference(setpoint, ControlType.kSmartMotion);
-        m_leftController.setReference(setpoint, ControlType.kSmartMotion);  
+    public boolean driveStraight(double inches, double targetHeading, double speed){
+
+        m_driveLoop.setOutputLimits(-speed, speed);
+
+        double setpoint = inches*0.333;
+
+        if(Math.abs(inches+m_rightEncoder.getPosition()) > 10){
+            m_driveLoop.resetI();
+        }
+        double output = m_driveLoop.getOutput(-m_rightEncoder.getPosition(), setpoint);
+        double turn = 0;
+        if(m_navx.getAngle() > +0.1){
+            turn = 0.1;
+        }
+        if(m_navx.getAngle() < -0.1){
+            turn = -0.1;
+        }
+        m_leftNeoMaster.set(-turn-output);
+        m_rightNeoMaster.set(-turn-output);
+        //System.out.println((m_rightEncoder.getPosition()/0.333));
+        if (Math.abs(inches+m_rightEncoder.getPosition()/0.333) < 1){
+            return true;
+        }else{
+            return false;
+        }
+
+        
+
     }
 
     public void turnTo(double targetAngle){

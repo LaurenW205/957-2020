@@ -28,7 +28,7 @@ public class Finger {
 
     MiniPID m_fingerLoop = new MiniPID(1, 0, 0);
 
-    CANSparkMax m_fingerMotor = new CANSparkMax(2, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax m_fingerMotor = new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless);
     CANEncoder m_fingerEncoder = m_fingerMotor.getEncoder();
     CANPIDController m_fingerController = m_fingerMotor.getPIDController();
     Spark m_lightRing = new Spark(0);
@@ -106,6 +106,12 @@ public class Finger {
     public void down(){
 
         m_cylinder.set(Value.kReverse);
+    }
+
+    public void spin(double speed){
+
+        m_fingerMotor.set(speed);
+
     }
 
     public void run(){

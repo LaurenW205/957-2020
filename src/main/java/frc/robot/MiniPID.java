@@ -56,6 +56,10 @@ public class MiniPID{
 		checkSigns();
 		}
 
+	public void resetI(){
+		errorSum = 0;
+	}
+
 	/**
 	 * Create a MiniPID class object. 
 	 * See setP, setI, setD, setF methods for more detailed parameters.
@@ -183,7 +187,7 @@ public class MiniPID{
 	 * @param maximum. Units are the same as the expected output value
 	 */
 	public void setMaxIOutput(double maximum){
-		// Internally maxError and Izone are similar, but scaled for different purposes. 
+		// Internally maxError and ne are similar, but scaled for different purposes. 
 		// The maxError is generated for simplifying math, since calculations against 
 		// the max error are far more common than changing the I term or Izone. 
 		maxIOutput=maximum;

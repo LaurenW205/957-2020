@@ -38,14 +38,21 @@ public class Robot extends TimedRobot {
   int k_ifGrabDisable = 9;
   int k_reverseAll = 10;
   int k_reverseIntake = 8;
+
   int k_fingerActive = 5;
   int k_fingerSpin = 6;
   int k_fingerPosition = 4;
   int k_drain = 2;
-  int k_max = 3;
+  int k_max = 1;
+  int k_climb = 3;
   
 
   int k_vision = 12;
+
+  int m_autoStep = 0;
+  int m_autoMode = 2;
+
+  int m_timer = 0;
 
   @Override
   public void robotInit() {
@@ -64,7 +71,7 @@ public class Robot extends TimedRobot {
   }
 
   public void disabledInit() {
-    m_drivetrain.setIdleMode(IdleMode.kCoast);
+    m_drivetrain.setIdleMode(IdleMode.kBrake);
     m_pc.setIdleMode(IdleMode.kBrake);
   }
   @Override
@@ -84,7 +91,110 @@ public class Robot extends TimedRobot {
   
   @Override
   public void autonomousPeriodic() {
-    m_drivetrain.turnTo(180);
+
+    System.out.println(m_autoStep);
+
+    switch(m_autoMode){
+
+      case 0:
+
+      switch(m_autoStep){
+
+          case 0:
+            
+            if(m_drivetrain.driveStraight(78, 0, 0.7)){
+              
+              m_autoStep++;
+              m_drivetrain.setIdleMode(IdleMode.kBrake);
+              m_drivetrain.arcadeDrive(0, 0);
+              m_state.setState(State.EJECT);
+            }
+      
+            break;
+      
+          case 1:
+      
+          break;
+        }
+
+       case 1:
+
+        switch(m_autoStep){
+
+          case 0:
+
+          if(m_drivetrain.driveStraight(-66, 0, 0.7)){
+            m_autoStep++;
+            m_drivetrain.arcadeDrive(0, 0);
+            m_state.setState(State.SHOOT);
+          }
+
+            break;
+
+          case 1:
+
+          m_drivetrain.target(0);
+
+            break;
+
+        }
+
+        break;
+
+        case 2:
+
+        switch(m_autoStep){
+
+          case 0:
+
+          if(m_drivetrain.driveStraight(-66, 0, 0.7)){
+            m_autoStep++;
+            m_drivetrain.arcadeDrive(0, 0);
+            m_state.setState(State.SHOOT);
+          }
+
+            break;
+
+          case 1:
+
+          m_drivetrain.target(0);
+          System.out.println(m_state.state());
+          
+          if(m_state.state() != State.SCORE && m_state.state() != State.SHOOT){
+            m_autoStep++;
+            m_timer = 0;
+            m_pc.record();
+            m_state.setState(State.GRAB_CELL);
+            m_pc.setArm(true);
+            m_switchIntake = 2;
+          }
+
+            break;
+
+          case 2:
+
+          m_drivetrain.turnTo(0);
+          m_timer = m_timer + 20;
+          if(m_timer == 500){
+            m_drivetrain.resetEncoders();
+            m_autoStep++;
+          }
+
+            break;
+
+          case 3:
+
+            m_drivetrain.driveStraight(-96, 0, 0.1);
+
+            break;
+
+        }
+
+        break;
+
+    }
+
+   m_pc.run();
   }
 
   @Override
@@ -167,12 +277,9 @@ public class Robot extends TimedRobot {
       m_state.setState(State.WAITING);
     }
 
-    if(m_xbox.getRawButton(k_max)){
-      m_climber.setLevel(LiftLevels.MAX);
-    }
-
     switch(m_switchFinger){
       case 0:
+        m_finger.spin(0);
         if(m_joystick.getRawButton(k_fingerActive)){
           m_switchFinger = 1;
         }
@@ -184,6 +291,7 @@ public class Robot extends TimedRobot {
         }
         break;
       case 2:
+        m_finger.spin(0.5);
         if(m_joystick.getRawButton(k_fingerActive)){
           m_switchFinger = 3;
         }
@@ -222,8 +330,17 @@ public class Robot extends TimedRobot {
         }
         break;
     }
-  //  m_pc.run();
+
+    if(m_xbox.getRawButton(k_max)){
+
+      m_climber.setLevel(LiftLevels.MID);
+
+    }
+
+    m_pc.run();
   //  m_finger.run();
+    m_climber.run(m_xbox.getRawButton(k_climb));
+
   }
 
   @Override
